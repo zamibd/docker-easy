@@ -1,45 +1,106 @@
 # 🚀 Docker Easy Deployment Guide
 
+---
+
 ## 🔁 Direct Clone from GitHub
 
-### 🧾 Step-by-step
+### ✅ Step 1: Clone the repository
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/zamibd/docker-easy.git
+```
 
-# 2. Enter the project directory
+---
+
+### ✅ Step 2: Enter the project directory
+
+```bash
 cd docker-easy
+```
 
-# 3. Edit your domain name (NGINX config)
+---
+
+### ✅ Step 3: Edit your domain name (NGINX config)
+
+```bash
 nano docker/nginx/default.conf
+```
 
-# 4. Rename and edit environment file
+---
+
+### ✅ Step 4: Rename and edit environment file
+
+```bash
 cp .env.example .env
 nano .env
+```
 
-# 5. Edit Redis config (if needed)
+---
+
+### ✅ Step 5: Edit Redis config (if needed)
+
+```bash
 nano docker/redis/redis.conf
+```
 
-# 6. Install Docker, Docker Compose, Git, and run your project
+---
+
+### ✅ Step 6: Install Docker, Docker Compose, Git, and run your project
+
+```bash
 bash install.sh
+```
 
-💻 Setup from Local Computer using Terraform
+---
 
-# 1. Clone the repository
+## 💻 Setup from Local Computer using Terraform
+
+### ✅ Step 1: Clone the repository
+
+```bash
 git clone https://github.com/zamibd/docker-easy.git
+```
 
-# 2. Enter the Terraform directory
+---
+
+### ✅ Step 2: Enter the Terraform directory
+
+```bash
 cd docker-easy/terraform
+```
 
-# 3. Edit variables (requires Linode API token and SSH password)
+---
+
+### ✅ Step 3: Edit variables (requires Linode API token and SSH password)
+
+```bash
 nano terraform.tfvars
+```
 
-# 4. Initialize Terraform
+---
+
+### ✅ Step 4: Initialize Terraform
+
+```bash
 terraform init
+```
 
-# 5. Review plan
+---
+
+### ✅ Step 5: Review the Terraform plan
+
+```bash
 terraform plan
+```
 
-# 6. Apply the plan (provision VPS and deploy Docker project)
+---
+
+### ✅ Step 6: Apply the plan to provision VPS and deploy Docker project
+
+```bash
 terraform apply
+```
+
+---
+
+✅ **That's it! Your Docker-based project is now ready to run and scale!**
