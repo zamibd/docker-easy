@@ -31,7 +31,7 @@
 <body>
   <div class="message">
     <h1>🎉 Congratulations!</h1>
-    <p><?php echo "PHP is working."; ?></p>
+    <p><?php echo "PHP is working Fine."; ?></p>
   </div>
 </body>
 </html>
