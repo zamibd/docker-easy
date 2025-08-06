@@ -33,22 +33,7 @@ RUN set -ex \
     && docker-php-ext-enable redis \
     # Install core PHP extensions
     && docker-php-ext-install \
-        pdo pdo_mysql mysqli zip pcntl bcmath curl \
-        gd \
-        xml \ 
-        mbstring \
-        ctype \
-        tokenizer \
-        fileinfo \
-        dom \
-        filter \
-        session \
-        opcache \
-        hash \
-        simplexml \
-        iconv \
-        intl \ 
-        xmlreader \
+        pdo pdo_mysql mysqli zip pcntl bcmath curl \ 
     # Remove build tools and clear cache to reduce image size
     && apk del $PHPIZE_DEPS \
     && rm -rf /var/cache/apk/*
