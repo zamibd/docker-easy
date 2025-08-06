@@ -35,8 +35,7 @@ RUN set -ex \
     && docker-php-ext-install \
         pdo pdo_mysql mysqli zip pcntl bcmath curl \
         gd \
-        xml \
-        json \
+        xml \ 
         mbstring \
         ctype \
         tokenizer \
@@ -48,9 +47,7 @@ RUN set -ex \
         hash \
         simplexml \
         iconv \
-        intl \
-        openssl \
-        pcre \
+        intl \ 
         xmlreader \
     # Remove build tools and clear cache to reduce image size
     && apk del $PHPIZE_DEPS \
