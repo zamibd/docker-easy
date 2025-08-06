@@ -34,6 +34,24 @@ RUN set -ex \
     # Install core PHP extensions
     && docker-php-ext-install \
         pdo pdo_mysql mysqli zip pcntl bcmath curl \
+        gd \
+        xml \
+        json \
+        mbstring \
+        ctype \
+        tokenizer \
+        fileinfo \
+        dom \
+        filter \
+        session \
+        opcache \
+        hash \
+        simplexml \
+        iconv \
+        intl \
+        openssl \
+        pcre \
+        xmlreader \
     # Remove build tools and clear cache to reduce image size
     && apk del $PHPIZE_DEPS \
     && rm -rf /var/cache/apk/*
