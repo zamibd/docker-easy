@@ -1,50 +1,45 @@
+# 🚀 Docker Easy Deployment Guide
 
-### Direct clone from github
+## 🔁 Direct Clone from GitHub
 
-# Clone git repo:
+### 🧾 Step-by-step
 
+```bash
+# 1. Clone the repository
 git clone https://github.com/zamibd/docker-easy.git
 
-# Go To project
-
+# 2. Enter the project directory
 cd docker-easy
 
-# edit domain name 
-
+# 3. Edit your domain name (NGINX config)
 nano docker/nginx/default.conf
 
-# Edit .env.example  to .env
-nano  .env
+# 4. Rename and edit environment file
+cp .env.example .env
+nano .env
 
-# Edit Redis config
+# 5. Edit Redis config (if needed)
 nano docker/redis/redis.conf
 
-# install docker+compose+git and your github project url:
-docker-easy
+# 6. Install Docker, Docker Compose, Git, and run your project
 bash install.sh
 
-==============================================================================
+💻 Setup from Local Computer using Terraform
 
-
-### setup from Local computer
-
-# 1 Open terminal and clone the repo
-
+# 1. Clone the repository
 git clone https://github.com/zamibd/docker-easy.git
 
-
-# 2 Go To project
-
+# 2. Enter the Terraform directory
 cd docker-easy/terraform
 
-# 3 Edit terraform.tfvars 
-# need Linode token and ssh password
-
+# 3. Edit variables (requires Linode API token and SSH password)
 nano terraform.tfvars
 
-# start terraform
+# 4. Initialize Terraform
 terraform init
 
+# 5. Review plan
 terraform plan
 
+# 6. Apply the plan (provision VPS and deploy Docker project)
 terraform apply
