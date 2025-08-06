@@ -34,12 +34,16 @@ RUN set -ex \
     # Install core PHP extensions
     && docker-php-ext-install \
         pdo pdo_mysql mysqli zip pcntl bcmath curl \
+        opcache intl mbstring exif \
     # Remove build tools and clear cache to reduce image size
     && apk del $PHPIZE_DEPS \
     && rm -rf /var/cache/apk/*
 
 # Copy the Composer binary from the official Composer image
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Install Laravel dependencies
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
 # php.ini & PHP-FPM config
 COPY ./docker/php/php.ini /usr/local/etc/php/php.ini
@@ -48,4 +52,7 @@ COPY ./docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
 # Expose PHP-FPM port and define the default startup command
 EXPOSE 9000
 CMD ["php-fpm"]
-
+# Copy the entrypoint script and make it executable
+COPY ./docker/php/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
