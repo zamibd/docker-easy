@@ -1,58 +1,63 @@
-
-# Use the official lightweight PHP 8.3 FPM Alpine base image
+# 🐘 Use official PHP 8.3 FPM Alpine image for lightweight performance
 FROM php:8.3-fpm-alpine
 
-# Add metadata labels
+# 📛 Metadata labels for clarity
 LABEL Name="SMS GATEWAY" \
       Version="1.0.0" \
-      Description="android sms gateway" \
+      Description="Android SMS Gateway" \
       Maintainer="hey@imzami.com"
 
-      
-# Define build tools required for compiling PHP extensions
+# 🛠 Define build tools required for compiling PHP extensions
 ENV PHPIZE_DEPS="autoconf gcc g++ make pkgconfig"
 
-# Set the working directory inside the container
+# 📁 Set working directory inside container
 WORKDIR /var/www/html
 
-# Install system dependencies, configure timezone, install Redis and PHP extensions
+# 🧰 Install system dependencies and PHP extensions
 RUN set -ex \
     && apk add --no-cache \
         git bash tzdata \
         libzip-dev libxml2-dev \
-        curl curl-dev libcurl \
-        mariadb-connector-c-dev \
-        mariadb-client \           
-        redis \                    
+        curl-dev mariadb-connector-c-dev \
+        mariadb-client \
         $PHPIZE_DEPS \
-    # Configure container timezone to Asia/Dubai
+    # 🕒 Configure timezone
     && cp /usr/share/zoneinfo/Asia/Dubai /etc/localtime \
     && echo "Asia/Dubai" > /etc/timezone \
-    # Install and enable the Redis PHP extension
+    # 🔌 Install Redis PHP extension
     && pecl install redis \
     && docker-php-ext-enable redis \
-    # Install core PHP extensions
+    # 🧩 Install core PHP extensions
     && docker-php-ext-install \
         pdo pdo_mysql mysqli zip pcntl bcmath curl \
         opcache intl mbstring exif \
-    # Remove build tools and clear cache to reduce image size
-    && apk del $PHPIZE_DEPS \
+    # 🧹 Remove build tools and clean cache
+    && apk del $PHPIZE_DEPS libzip-dev libxml2-dev curl-dev mariadb-connector-c-dev \
     && rm -rf /var/cache/apk/*
 
-# Copy the Composer binary from the official Composer image
+# 🎼 Copy Composer binary from official Composer image
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Install Laravel dependencies
+# 📦 Copy Laravel project files
+COPY . .
+
+# 📜 Copy only composer files first to optimize caching
+# (Optional: uncomment if using multi-stage caching)
+# COPY composer.json composer.lock ./
+
+# 📥 Install Laravel dependencies
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# php.ini & PHP-FPM config
+# ⚙️ Copy PHP configuration files
 COPY ./docker/php/php.ini /usr/local/etc/php/php.ini
 COPY ./docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
 
-# Expose PHP-FPM port and define the default startup command
+# 🚪 Expose PHP-FPM port
 EXPOSE 9000
-CMD ["php-fpm"]
-# Copy the entrypoint script and make it executable
+
+# 🚀 Copy entrypoint script and make it executable
 COPY ./docker/php/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+
+# 🧨 Entrypoint script should call php-fpm internally
 ENTRYPOINT ["/entrypoint.sh"]
