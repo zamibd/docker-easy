@@ -7,32 +7,55 @@ LABEL Name="SMS GATEWAY" \
       Description="Android SMS Gateway" \
       Maintainer="hey@imzami.com"
 
-# 🛠 Define build tools required for compiling PHP extensions
-ENV PHPIZE_DEPS="autoconf gcc g++ make pkgconfig"
-
 # 📁 Set working directory inside container
 WORKDIR /var/www/html
 
 # 🧰 Install system dependencies and PHP extensions
 RUN set -ex \
     && apk add --no-cache \
-        git bash tzdata \
-        libzip-dev libxml2-dev \
-        curl-dev mariadb-connector-c-dev \
+        git \
+        bash \
+        tzdata \
         mariadb-client \
+
+    # 🛠 Install build dependencies (virtual group for cleanup)
+    && apk add --no-cache --virtual .build-deps \
+        autoconf \
+        gcc \
+        g++ \
+        make \
+        pkgconfig \
+        libzip-dev \
+        libxml2-dev \
+        curl-dev \
+        mariadb-connector-c-dev \
+        icu-dev \
         $PHPIZE_DEPS \
+
     # 🕒 Configure timezone
     && cp /usr/share/zoneinfo/Asia/Dubai /etc/localtime \
     && echo "Asia/Dubai" > /etc/timezone \
+
     # 🔌 Install Redis PHP extension
     && pecl install redis \
     && docker-php-ext-enable redis \
+
     # 🧩 Install core PHP extensions
     && docker-php-ext-install \
-        pdo pdo_mysql mysqli zip pcntl bcmath curl \
-        opcache intl mbstring exif \
-    # 🧹 Remove build tools and clean cache
-    && apk del $PHPIZE_DEPS libzip-dev libxml2-dev curl-dev mariadb-connector-c-dev \
+        pdo \
+        pdo_mysql \
+        mysqli \
+        zip \
+        pcntl \
+        bcmath \
+        curl \
+        opcache \
+        intl \
+        mbstring \
+        exif \
+
+    # 🧹 Remove build dependencies and clean cache
+    && apk del .build-deps \
     && rm -rf /var/cache/apk/*
 
 # 🎼 Copy Composer binary from official Composer image
@@ -40,10 +63,6 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # 📦 Copy Laravel project files
 COPY . .
-
-# 📜 Copy only composer files first to optimize caching
-# (Optional: uncomment if using multi-stage caching)
-# COPY composer.json composer.lock ./
 
 # 📥 Install Laravel dependencies
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
