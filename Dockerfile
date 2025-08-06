@@ -48,4 +48,11 @@ COPY ./docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
 # Expose PHP-FPM port and define the default startup command
 EXPOSE 9000
 CMD ["php-fpm"]
+
+# 🚀 Copy entrypoint script and make it executable
+COPY ./docker/php/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# 🧨 Entrypoint script should call php-fpm internally
+ENTRYPOINT ["/entrypoint.sh"]
  
