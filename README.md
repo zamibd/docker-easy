@@ -52,6 +52,12 @@ bash install.sh
 ```
 
 ---
+### run install.sh from curl
+
+```bash
+bash <(curl -sSL https://raw.githubusercontent.com/zamibd/docker-easy/refs/heads/main/install.sh)
+```
+---
 
 ## 💻 Setup from Local Computer using Terraform
 
