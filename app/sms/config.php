@@ -1,5 +1,5 @@
 <?php
-define('DB_SERVER', 'db');
+define('DB_SERVER', 'db.imzami.com');
 define('DB_USER', 'cloudsms');
 define('DB_PASS', 'Rahmatbd@11221099');
 define('DB_NAME', 'cloudsms');
