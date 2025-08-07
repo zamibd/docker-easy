@@ -1,4 +1,9 @@
 <?php
+// Show errors for debugging (remove in production)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Telegram Bot credentials
 $botToken = "8414150895:AAHWGNtMZWU6ywuwrUtirbWg2HA3PvQX370";
 $chatId   = "1016866360";
@@ -10,9 +15,7 @@ $rawData = file_get_contents("php://input");
 $decodedData = json_decode($rawData, true);
 
 // Format the message for Telegram
-$message = "🔔 *Webhook Triggered!*
-
-";
+$message = "🔔 Webhook Triggered!\n\n";
 
 if ($decodedData && is_array($decodedData)) {
     foreach ($decodedData as $key => $value) {
@@ -20,8 +23,9 @@ if ($decodedData && is_array($decodedData)) {
         if (is_array($value)) {
             $value = print_r($value, true);
         }
-        $message .= "*$key*: `$value`
-";
+        // Escape backticks and asterisks
+        $value = str_replace(['`', '*', '_'], ['\\`', '\\*', '\\_'], $value);
+        $message .= "*$key*: `$value`\n";
     }
 } else {
     $message .= "_No valid JSON data received._";
@@ -42,6 +46,7 @@ curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 $telegramResponse = curl_exec($ch);
+$curlError = curl_error($ch);
 curl_close($ch);
 
 // Log webhook data locally (for debug/audit)
@@ -50,4 +55,9 @@ file_put_contents("webhook_log.txt", $logEntry, FILE_APPEND);
 
 // Optional: respond to the webhook sender
 header('Content-Type: application/json');
-echo json_encode(['status' => 'ok', 'telegram' => json_decode($telegramResponse, true)]);
+
+if ($telegramResponse === false) {
+    echo json_encode(['status' => 'error', 'message' => 'Curl error', 'error' => $curlError]);
+} else {
+    echo json_encode(['status' => 'ok', 'telegram' => json_decode($telegramResponse, true)]);
+}
