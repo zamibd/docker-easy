@@ -17,7 +17,8 @@ WORKDIR /var/www/html
 
 # Install system dependencies, configure timezone, install Redis and PHP extensions
 RUN set -ex \
-    && apk add --no-cache \
+    && apk add --no-cache \ 
+        php-curl \
         git bash tzdata \
         libzip-dev libxml2-dev \
         curl curl-dev libcurl \
