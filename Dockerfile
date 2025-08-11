@@ -8,12 +8,18 @@ WORKDIR /app/sms
 RUN apk add --no-cache \
         git bash tzdata \
         libzip-dev libxml2-dev curl-dev libcurl mariadb-connector-c-dev \
+        libpng-dev libjpeg-turbo-dev libwebp-dev libxpm-dev freetype-dev \
         $PHPIZE_DEPS \
     && cp /usr/share/zoneinfo/Asia/Dubai /etc/localtime \
     && echo "Asia/Dubai" > /etc/timezone \
     && pecl install redis \
     && docker-php-ext-enable redis \
-    && docker-php-ext-install pdo pdo_mysql mysqli zip pcntl bcmath curl \
+    && docker-php-ext-configure gd \
+        --with-freetype \
+        --with-jpeg \
+        --with-webp \
+        --with-xpm \
+    && docker-php-ext-install gd pdo pdo_mysql mysqli zip pcntl bcmath curl \
     && apk del $PHPIZE_DEPS \
     && rm -rf /var/cache/apk/*
 
