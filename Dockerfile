@@ -18,7 +18,7 @@ RUN apk add --no-cache \
     && rm -rf /var/cache/apk/*
 
 # Copy composer files first (for better cache)
-COPY composer.json composer.lock* /app/sms
+COPY ./app/sms/composer.json ./app/sms/composer.lock* /app/sms/
 
 # Copy app source code
 COPY ./app /app
