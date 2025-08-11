@@ -23,14 +23,16 @@ RUN apk add --no-cache \
     && apk del $PHPIZE_DEPS \
     && rm -rf /var/cache/apk/* \
     && addgroup -g 1000 imzami \
-    && adduser -u 1000 -G imzami -s /bin/sh -D imzami \
-    && chown -R imzami:imzami /app
+    && adduser -u 1000 -G imzami -s /bin/sh -D imzami
 
 # Copy composer files first (for better cache)
 COPY ./app/sms/composer.json ./app/sms/composer.lock* /app/sms/
 
 # Copy app source code (পুরো /app ফোল্ডার)
 COPY ./app /app
+
+# Fix ownership so non-root user can write
+RUN chown -R imzami:imzami /app
 
 # Copy composer binary
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -61,6 +63,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Copy application code and vendor from builder
 COPY --from=builder /app /var/www/html
+
+# Fix ownership so runtime user can write
 RUN chown -R imzami:imzami /var/www/html
 
 USER imzami
