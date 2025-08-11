@@ -1,59 +1,64 @@
+# --- Builder stage ---
+FROM php:8.3-fpm-alpine AS builder
 
-# Use the official lightweight PHP 8.3 FPM Alpine base image
-FROM php:8.3-fpm-alpine
-
-# Add metadata labels
-LABEL Name="sms-app" \
-      Version="1.0.0" \
-      Description="android sms gateway" \
-      Maintainer="hey@imzami.com"
-
-      
-# Define build tools required for compiling PHP extensions
 ENV PHPIZE_DEPS="autoconf gcc g++ make pkgconfig"
 
-# Set the working directory inside the container
-WORKDIR /var/www/html
+WORKDIR /app
 
-# Install system dependencies, configure timezone, install Redis and PHP extensions
-RUN set -ex \
-    && apk add --no-cache \ 
-        php-curl \
+RUN apk add --no-cache \
         git bash tzdata \
-        libzip-dev libxml2-dev \
-        curl curl-dev libcurl \
-        mariadb-connector-c-dev \
-        mariadb-client \           
-        redis \                    
+        libzip-dev libxml2-dev curl-dev libcurl mariadb-connector-c-dev \
         $PHPIZE_DEPS \
-    # Configure container timezone to Asia/Dubai
     && cp /usr/share/zoneinfo/Asia/Dubai /etc/localtime \
     && echo "Asia/Dubai" > /etc/timezone \
-    # Install and enable the Redis PHP extension
     && pecl install redis \
     && docker-php-ext-enable redis \
-    # Install core PHP extensions
-    && docker-php-ext-install \
-        pdo pdo_mysql mysqli zip pcntl bcmath curl \
-    # Remove build tools and clear cache to reduce image size
+    && docker-php-ext-install pdo pdo_mysql mysqli zip pcntl bcmath curl \
     && apk del $PHPIZE_DEPS \
     && rm -rf /var/cache/apk/*
 
-# Copy the Composer binary from the official Composer image
+# Copy composer files first (for better cache)
+COPY composer.json composer.lock* /app/
+
+# Copy app source code
+COPY ./app /app
+
+# Copy composer binary
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# php.ini & PHP-FPM config
+# Install PHP dependencies without dev packages
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-scripts --no-progress
+
+# --- Final stage ---
+FROM php:8.3-fpm-alpine
+
+WORKDIR /var/www/html
+
+# Timezone setup
+RUN apk add --no-cache tzdata \
+    && cp /usr/share/zoneinfo/Asia/Dubai /etc/localtime \
+    && echo "Asia/Dubai" > /etc/timezone \
+    && apk del tzdata
+
+# Copy PHP extensions and config from builder
+COPY --from=builder /usr/local/lib/php/extensions /usr/local/lib/php/extensions
+COPY --from=builder /usr/local/etc/php/conf.d /usr/local/etc/php/conf.d
+
+# Copy composer binary (optional)
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Copy application code and vendor from builder
+COPY --from=builder /app /var/www/html
+
+# Copy your php.ini and php-fpm config
 COPY ./docker/php/php.ini /usr/local/etc/php/php.ini
 COPY ./docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
 
-# Expose PHP-FPM port and define the default startup command
-EXPOSE 9000
-CMD ["php-fpm"]
-
-# 🚀 Copy entrypoint script and make it executable
+# Entrypoint script
 COPY ./docker/php/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# 🧨 Entrypoint script should call php-fpm internally
+EXPOSE 9000
+
 ENTRYPOINT ["/entrypoint.sh"]
- 
+CMD ["php-fpm"]
