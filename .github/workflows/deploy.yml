@@ -28,13 +28,13 @@ jobs:
       - name: Build Docker image
         run: |
           docker build . --file Dockerfile \
-            --tag imzami/cloud-sms:latest \
-            --tag ghcr.io/zamibd/cloud-sms:latest
+            --tag imzami/custom-php:latest \
+            --tag ghcr.io/zamibd/custom-php:latest
 
       # ✅ Step 5: Push image to Docker Hub
       - name: Push to Docker Hub
-        run: docker push imzami/cloud-sms:latest
+        run: docker push imzami/custom-php:latest
 
       # ✅ Step 6: Push image to GitHub Container Registry (GHCR)
       - name: Push to GHCR
-        run: docker push ghcr.io/zamibd/proxy-openvpn:latest
+        run: docker push ghcr.io/zamibd/custom-php:latest
