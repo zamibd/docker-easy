@@ -3,7 +3,7 @@ FROM php:8.3-fpm-alpine AS builder
 
 ENV PHPIZE_DEPS="autoconf gcc g++ make pkgconfig"
 
-WORKDIR /app
+WORKDIR /app/sms
 
 RUN apk add --no-cache \
         git bash tzdata \
@@ -20,13 +20,13 @@ RUN apk add --no-cache \
 # Copy composer files first (for better cache)
 COPY ./app/sms/composer.json ./app/sms/composer.lock* /app/sms/
 
-# Copy app source code
+# Copy app source code (পুরো /app ফোল্ডার)
 COPY ./app /app
 
 # Copy composer binary
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Install PHP dependencies without dev packages
+# Run composer install in /app/sms (যেখানে composer.json)
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-scripts --no-progress
 
 # --- Final stage ---
