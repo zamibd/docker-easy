@@ -11,7 +11,7 @@ on:
 jobs:
   deploy:
     name: 🔄 Deploy to All Servers
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: ⬇️ Checkout Source Code
